@@ -1,31 +1,40 @@
 package org.jsp.eBankingProject.service;
-
 import java.security.SecureRandom;
 
+import org.jsp.eBankingProject.dto.ResponseDto;
 import org.jsp.eBankingProject.dto.UserDto;
-import org.jsp.eBankingProject.entity.TempUser;
-import org.jsp.eBankingProject.repository.TempUserRepository;
+import org.jsp.eBankingProject.exception.DataExistsException;
+import org.jsp.eBankingProject.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-	final TempUserRepository tempUserRepository;
 
-	@Override
-	public ResponseEntity<TempUser> register(UserDto dto) {
-		TempUser tempUser = new TempUser(dto.getName(), dto.getEmail(), dto.getMobile(), dto.getDob(),
-				dto.getPassword(), dto.getRole(), new SecureRandom().nextInt(1000, 10000));
-		tempUserRepository.save(tempUser);
-		return ResponseEntity.status(201).body(tempUser);
+	private final RedisService redisService;
+	private final UserRepository userRepository;
+	public ResponseEntity<ResponseDto> register(UserDto dto) {
+		if (redisService.fetchUserDto(dto.getEmail()) == null) {
+			if (!userRepository.existsByEmailOrMobile(dto.getEmail(), dto.getMobile())) {
+				int otp = new SecureRandom().nextInt(1000, 10000);
+				redisService.saveUserDto(dto);
+				redisService.saveUserOtp(dto.getEmail(), otp);
+				return ResponseEntity.status(201).body(new ResponseDto("Otp Sent Verify", dto));
+			} else {
+				throw new DataExistsException(
+						"Account Already Exists with " + dto.getEmail() + " or " + dto.getMobile());
+			}
+		} else {
+			throw new DataExistsException(dto.getEmail() + " is Already being Verified if fails try after 15 mins");
+		}
 	}
 
-	@Override
-	public ResponseEntity<TempUser> fetch(String email) {
-		return ResponseEntity.status(200).body(tempUserRepository.findById(email).get());
+	public String check(String email) {
+		int a = redisService.fetchOtp(email);
+		UserDto b = redisService.fetchUserDto(email);
+		return "" + a + " ------ " + b;
 	}
 
 }
