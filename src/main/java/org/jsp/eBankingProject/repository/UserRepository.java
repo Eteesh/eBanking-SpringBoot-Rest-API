@@ -1,5 +1,9 @@
 package org.jsp.eBankingProject.repository;
+import org.jsp.eBankingProject.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public class UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
+
+	boolean existsByEmailOrMobile(String email, String mobile);
 
 }
