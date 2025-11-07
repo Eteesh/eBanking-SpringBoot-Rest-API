@@ -1,11 +1,13 @@
 package org.jsp.eBankingProject.controller;
 
 
+import org.jsp.eBankingProject.dto.OtpDto;
+import org.jsp.eBankingProject.dto.ResetPasswordDto;
 import org.jsp.eBankingProject.dto.ResponseDto;
 import org.jsp.eBankingProject.dto.UserDto;
 import org.jsp.eBankingProject.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,9 +28,24 @@ public class AuthController {
 	public ResponseEntity<ResponseDto> register(@RequestBody @Valid UserDto dto) {
 		return userService.register(dto);
 	}
-	@GetMapping("/check/{email}")
-	public String check(@PathVariable String email) {
-		return userService.check(email);
+	@PostMapping("/verify-otp")
+	public ResponseEntity<ResponseDto> verfiyOtp(@RequestBody OtpDto dto) {
+		return userService.verifyOtp(dto);
 	}
+	@PatchMapping("/resend-otp/{email}")
+	public ResponseEntity<ResponseDto> resendOtp(@PathVariable String email) {
+		return userService.resendOtp(email);
+	}
+
+	@PatchMapping("/forgot-password/{email}")
+	public ResponseEntity<ResponseDto> forgotPassword(@PathVariable String email) {
+		return userService.forgotPassword(email);
+	}
+
+	@PatchMapping("/reset-password")
+	public ResponseEntity<ResponseDto> resetPassword(@RequestBody @Valid ResetPasswordDto dto) {
+		return userService.resetPassword(dto);
+	}
+	
 
 }
