@@ -2,6 +2,7 @@ package org.jsp.eBankingProject.service;
 import java.security.SecureRandom;
 
 import org.jsp.eBankingProject.dto.BankingRole;
+import org.jsp.eBankingProject.dto.LoginDto;
 import org.jsp.eBankingProject.dto.OtpDto;
 import org.jsp.eBankingProject.dto.ResetPasswordDto;
 import org.jsp.eBankingProject.dto.ResponseDto;
@@ -12,8 +13,13 @@ import org.jsp.eBankingProject.exception.DataNotFoundException;
 import org.jsp.eBankingProject.exception.ExpiredException;
 import org.jsp.eBankingProject.exception.MissMatchException;
 import org.jsp.eBankingProject.repository.UserRepository;
+import org.jsp.eBankingProject.util.JwtUtil;
 import org.jsp.eBankingProject.util.MessageSendingHelper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +32,10 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final MessageSendingHelper messageSendingHelper;
 	private final PasswordEncoder passwordEncoder;
+	private final AuthenticationManager authenticationManager;
+	private final JwtUtil jwtUtil;
+	private final UserDetailsService userDetailsService;
+	
 	public ResponseEntity<ResponseDto> register(UserDto dto) {
 		if (redisService.fetchUserDto(dto.getEmail()) == null) {
 			if (!userRepository.existsByEmailOrMobile(dto.getEmail(), dto.getMobile())) {
@@ -108,6 +118,13 @@ public class UserServiceImpl implements UserService {
 				}
 			}
 		}
+	}
+	@Override
+	public ResponseEntity<ResponseDto> login(LoginDto dto) {
+		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+		UserDetails userDetails = userDetailsService.loadUserByUsername(dto.getEmail());
+		String token = jwtUtil.generateToken(userDetails);
+		return ResponseEntity.ok(new ResponseDto("Login Success", token));
 	}
 	
 

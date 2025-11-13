@@ -1,11 +1,11 @@
 package org.jsp.eBankingProject.controller;
 
-
 import org.jsp.eBankingProject.dto.OtpDto;
 import org.jsp.eBankingProject.dto.ResetPasswordDto;
 import org.jsp.eBankingProject.dto.ResponseDto;
 import org.jsp.eBankingProject.dto.UserDto;
 import org.jsp.eBankingProject.service.UserService;
+import org.jsp.eBankingProject.dto.LoginDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,6 +45,10 @@ public class AuthController {
 	@PatchMapping("/reset-password")
 	public ResponseEntity<ResponseDto> resetPassword(@RequestBody @Valid ResetPasswordDto dto) {
 		return userService.resetPassword(dto);
+	}
+	@PostMapping("/login")
+	public ResponseEntity<ResponseDto> login(@RequestBody @Valid LoginDto dto) {
+		return userService.login(dto);
 	}
 	
 

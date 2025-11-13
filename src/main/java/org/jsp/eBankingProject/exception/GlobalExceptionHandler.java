@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.http.HttpStatus;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -39,6 +42,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(DataNotFoundException.class)
 	public ResponseEntity<Object> handle(DataNotFoundException exception) {
 		return ResponseEntity.status(404).body(new ErrorDto(exception.getMessage()));
+	}
+	@ExceptionHandler(BadCredentialsException.class)
+	@ResponseStatus(code = HttpStatus.FORBIDDEN)
+	public ErrorDto handle(BadCredentialsException exception) {
+		return new ErrorDto("Invalid Password");
 	}
 
 }
