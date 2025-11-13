@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.OneToOne;
 
 @Entity
 @Data
@@ -42,4 +43,7 @@ public class User {
 	private LocalDateTime createdTime;
 	@UpdateTimestamp
 	private LocalDateTime updatedTime;
+	
+	@OneToOne
+	SavingBankAccount bankAccount;
 }
