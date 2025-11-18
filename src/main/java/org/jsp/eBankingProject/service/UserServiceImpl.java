@@ -1,8 +1,8 @@
 package org.jsp.eBankingProject.service;
 import java.security.Principal;
 import java.security.SecureRandom;
+import java.util.LinkedHashMap;
 
-import org.jsp.eBankingProject.dto.BankingRole;
 import org.jsp.eBankingProject.dto.LoginDto;
 import org.jsp.eBankingProject.dto.OtpDto;
 import org.jsp.eBankingProject.dto.ResetPasswordDto;
@@ -15,6 +15,8 @@ import org.jsp.eBankingProject.exception.DataExistsException;
 import org.jsp.eBankingProject.exception.DataNotFoundException;
 import org.jsp.eBankingProject.exception.ExpiredException;
 import org.jsp.eBankingProject.exception.MissMatchException;
+import org.jsp.eBankingProject.mapper.SavingsBankMapper;
+import org.jsp.eBankingProject.mapper.UserMapper;
 import org.jsp.eBankingProject.repository.SavingAccountRepository;
 import org.jsp.eBankingProject.repository.UserRepository;
 import org.jsp.eBankingProject.util.JwtUtil;
@@ -26,6 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.jsp.eBankingProject.dto.UserDto;
 
 import lombok.RequiredArgsConstructor;
 @Service
@@ -40,6 +43,8 @@ public class UserServiceImpl implements UserService {
 	private final JwtUtil jwtUtil;
 	private final UserDetailsService userDetailsService;
 	private final SavingAccountRepository savingAccountRepository;
+	private final UserMapper userMapper;
+	private final SavingsBankMapper bankMapper;
 	
 	public ResponseEntity<ResponseDto> register(UserDto dto) {
 		if (redisService.fetchUserDto(dto.getEmail()) == null) {
@@ -65,9 +70,7 @@ public class UserServiceImpl implements UserService {
 		else {
 			if (otp == dto.getOtp()) {
 				UserDto userDto = redisService.fetchUserDto(dto.getEmail());
-				User user = new User(null, userDto.getName(), userDto.getEmail(), userDto.getMobile(), userDto.getDob(),
-						passwordEncoder.encode(userDto.getPassword()), BankingRole.valueOf(userDto.getRole()), null,
-						null,null);
+				User user = userMapper.toEntity(userDto);
 				userRepository.save(user);
 				redisService.deleteUserDto(dto.getEmail());
 				redisService.deleteUserOtp(dto.getEmail());
@@ -119,8 +122,8 @@ public class UserServiceImpl implements UserService {
 					user.setPassword(passwordEncoder.encode(dto.getPassword()));
 					userRepository.save(user);
 
-					return ResponseEntity.status(200).body(new ResponseDto("Password Reset Success", dto.getEmail()));
-				}
+					redisService.deleteUserOtp(dto.getEmail());
+					return ResponseEntity.status(200).body(new ResponseDto("Password Reset Success", userMapper.toDto(user)));				}
 			}
 		}
 	}
@@ -129,7 +132,10 @@ public class UserServiceImpl implements UserService {
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
 		UserDetails userDetails = userDetailsService.loadUserByUsername(dto.getEmail());
 		String token = jwtUtil.generateToken(userDetails);
-		return ResponseEntity.ok(new ResponseDto("Login Success", token));
+		LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
+		map.put("token", token);
+		map.put("user", userMapper.toDto(userRepository.findByEmail(dto.getEmail())));
+		return ResponseEntity.ok(new ResponseDto("Login Success", map));
 	}
 	@Override
 	public ResponseEntity<ResponseDto> viewSavingsAccount(Principal principal) {
@@ -152,9 +158,7 @@ public class UserServiceImpl implements UserService {
 				throw new DataExistsException("Account Still Pending for Verification Wait for some time");
 
 		} else {
-			SavingBankAccount bankAccount = new SavingBankAccount(null, accountDto.getAddress(), "EBNK000001",
-					accountDto.getFullName(), accountDto.getPan(), accountDto.getAadhar(), "EBANK-DEFAULT", 0.0, false,
-					false);
+			SavingBankAccount bankAccount = bankMapper.toEntity(accountDto);
 			savingAccountRepository.save(bankAccount);
 			user.setBankAccount(bankAccount);
 			userRepository.save(user);
