@@ -7,6 +7,11 @@ import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 
 @Data
 @Entity
@@ -33,4 +38,7 @@ public class SavingBankAccount {
 	private Double balance;
 	private boolean active;
 	private boolean blocked;
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	List<BankTransactions> bankTransactions;
 }
