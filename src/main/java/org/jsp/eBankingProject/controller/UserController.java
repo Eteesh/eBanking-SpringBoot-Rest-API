@@ -1,20 +1,22 @@
 package org.jsp.eBankingProject.controller;
 
 import java.security.Principal;
+import java.util.Map;
 
 import org.jsp.eBankingProject.dto.ResponseDto;
 import org.jsp.eBankingProject.dto.SavingAccountDto;
+import org.jsp.eBankingProject.dto.TransferDto;
 import org.jsp.eBankingProject.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import jakarta.validation.Valid;
-import java.util.Map;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -49,6 +51,11 @@ public class UserController {
 		public ResponseEntity<ResponseDto> confirmDeposit(@RequestParam Double amount,
 				@RequestParam String razorpay_payment_id, Principal principal) {
 			return userService.confirmPayment(amount, razorpay_payment_id, principal);
+		}
+
+		@PostMapping("/transafer")
+		public ResponseEntity<ResponseDto> transferAmount(Principal principal,@RequestBody TransferDto dto) {
+			return userService.transfer(principal,dto);
 		}
 
 

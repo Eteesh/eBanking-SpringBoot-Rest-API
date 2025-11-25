@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +22,8 @@ public class BankTransactions {
 	private String payment_id;
 	private Double amount;
 	private String type;
+	@CreationTimestamp
 	private LocalDateTime createdTime;
+	private Double balanceBeforeTransaction;
 	private Double balanceAfterTransaction;
 }

@@ -1,15 +1,15 @@
 package org.jsp.eBankingProject.service;
 import java.security.Principal;
+import java.util.Map;
 
 import org.jsp.eBankingProject.dto.LoginDto;
 import org.jsp.eBankingProject.dto.OtpDto;
 import org.jsp.eBankingProject.dto.ResetPasswordDto;
 import org.jsp.eBankingProject.dto.ResponseDto;
 import org.jsp.eBankingProject.dto.SavingAccountDto;
+import org.jsp.eBankingProject.dto.TransferDto;
 import org.jsp.eBankingProject.dto.UserDto;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Map;
 public interface UserService {
 	ResponseEntity<ResponseDto> register(UserDto dto);
 
@@ -32,5 +32,7 @@ public interface UserService {
 	ResponseEntity<ResponseDto> deposit(Principal principal, Map<String, Double> map);
 
 	ResponseEntity<ResponseDto> confirmPayment(Double amount, String razorpay_payment_id, Principal principal);
+	
+	ResponseEntity<ResponseDto> transfer(Principal principal, TransferDto dto);
 
 }

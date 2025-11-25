@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableAsync
 public class EBankingProjectApplication {
-
+	
 	public static void main(String[] args) {
 		SpringApplication.run(EBankingProjectApplication.class, args);
 	}

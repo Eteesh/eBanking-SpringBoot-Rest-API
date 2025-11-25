@@ -1,7 +1,10 @@
 package org.jsp.eBankingProject.repository;
+import java.util.List;
+import java.util.Optional;
+
+import org.jsp.eBankingProject.dto.BankingRole;
 import org.jsp.eBankingProject.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	boolean existsByEmailOrMobile(String email, String mobile);
@@ -11,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	User findByEmail(String email);
 	
 	Optional<User> findByBankAccount_accountNumber(Long accountNumber);
+	List<User> findByRole(BankingRole user);
 }
